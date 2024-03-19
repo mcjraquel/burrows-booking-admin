@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+model Branch {
+  id            String          @id @default(uuid())
+  name          String
+  createdBy     String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  AppUser       AppUser?        @relation(fields: [appUserId], references: [id])
+  appUserId     String?
+  PermissionSet PermissionSet[]
+}
+
+model Role {
+  id            String          @id @default(uuid())
+  name          String
+  createdBy     String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  AppUser       AppUser?        @relation(fields: [appUserId], references: [id])
+  appUserId     String?
+  PermissionSet PermissionSet[]
+}
+
+model AppUser {
+  id         String   @id @default(uuid())
+  authUserId String   @unique
+  name       String
+  roles      Role[]
+  branches   Branch[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model PermissionSet {
+  id          String   @id @default(uuid())
+  role        Role     @relation(fields: [roleId], references: [id])
+  branch      Branch   @relation(fields: [branchId], references: [id])
+  roleId      String
+  branchId    String
+  permissions String[]
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
