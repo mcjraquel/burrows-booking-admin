@@ -2,14 +2,15 @@
 
 import * as z from "zod";
 import axios from "axios";
-import { Branch } from "@prisma/client";
+import { Branch, Service } from "@prisma/client";
 import { Trash } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useParams, useRouter } from "next/navigation";
 
+import { getServices } from "@/lib/db-utils";
 import { Heading } from "@/components/ui/heading";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -19,16 +20,24 @@ import {
     FormItem,
     FormLabel,
     FormControl,
+    FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { AlertModal } from "@/components/modals/alert-modal";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface BranchSettingsFormProps {
     initialData: Branch;
 }
 
+type FormattedItem = {
+    label: string;
+    value: string;
+};
+
 const formSchema = z.object({
     name: z.string().min(1),
+    services: z.array(z.string()),
 });
 
 type BranchSettingsFormValues = z.infer<typeof formSchema>;
@@ -40,6 +49,19 @@ export const BranchSettingsForm: React.FC<BranchSettingsFormProps> = ({
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    const [services, setServices] = useState<FormattedItem[]>([]);
+
+    useEffect(() => {
+        getServices().then((services) => {
+            setServices(
+                services.map((service) => ({
+                    label: service.name,
+                    value: service.id,
+                }))
+            );
+        });
+    }, []);
 
     const form = useForm<BranchSettingsFormValues>({
         resolver: zodResolver(formSchema),
@@ -124,7 +146,68 @@ export const BranchSettingsForm: React.FC<BranchSettingsFormProps> = ({
                             )}
                         />
                     </div>
+                    <div>
+                        <FormField
+                            control={form.control}
+                            name="services"
+                            render={() => (
+                                <FormItem>
+                                    <div>
+                                        <FormLabel>Services</FormLabel>
+                                        <FormDescription>
+                                            Select branch services
+                                        </FormDescription>
+                                    </div>
+                                    {services.map((service) => (
+                                        <FormField
+                                            key={service.id}
+                                            control={form.control}
+                                            name="services"
+                                            render={({ field }) => (
+                                                <FormItem
+                                                    key={service.id}
+                                                    className="flex flex-row items-start space-x-3 space-y-0"
+                                                >
+                                                    <FormControl>
+                                                        <Checkbox
+                                                            checked={field.value?.includes(
+                                                                service.id
+                                                            )}
+                                                            onCheckedChange={(
+                                                                checked
+                                                            ) => {
+                                                                return checked
+                                                                    ? field.onChange(
+                                                                          [
+                                                                              ...field.value,
+                                                                              service.id,
+                                                                          ]
+                                                                      )
+                                                                    : field.onChange(
+                                                                          field.value?.filter(
+                                                                              (
+                                                                                  value
+                                                                              ) =>
+                                                                                  value !==
+                                                                                  service.id
+                                                                          )
+                                                                      );
+                                                            }}
+                                                        />
+                                                    </FormControl>
+                                                    <FormLabel>
+                                                        {service.name}
+                                                    </FormLabel>
+                                                </FormItem>
+                                            )}
+                                        />
+                                    ))}
+                                </FormItem>
+                            )}
+                        />
+                    </div>
                     <Button
+                        variant="destructive"
                         disabled={loading}
                         className="ml-auto"
                         type="submit"

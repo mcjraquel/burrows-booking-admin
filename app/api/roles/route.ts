@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs";
 
 import prismadb from "@/lib/prismadb";
-import { Role } from "@prisma/client";
 
 export async function POST(req: Request) {
     try {
@@ -35,6 +34,12 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request, params: { id: string }) {
     try {
+        const { userId } = auth();
+
+        if (!userId) {
+            return new NextResponse("Unauthorized", { status: 401 });
+        }
+
         if (!params.id) {
             const roles = await prismadb.role.findMany();
             return NextResponse.json(roles);

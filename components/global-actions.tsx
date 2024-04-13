@@ -46,7 +46,7 @@ export default function GlobalActions({ appUser }: GlobalActionProps) {
                     <DropdownMenuGroup>
                         <DropdownMenuItem
                             onSelect={() => {
-                                router.push("/manage/roles");
+                                router.push("/manage");
                             }}
                         >
                             <Settings className="mr-2 h-4 w-4" />

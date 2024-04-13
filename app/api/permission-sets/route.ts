@@ -84,6 +84,12 @@ export async function PATCH(req: Request) {
 
 export async function GET(req: Request) {
     try {
+        const { userId } = auth();
+
+        if (!userId) {
+            return new NextResponse("Unauthorized", { status: 401 });
+        }
+
         const permissionSets = await prismadb.permissionSet.findMany();
         return NextResponse.json(permissionSets);
     } catch (error) {

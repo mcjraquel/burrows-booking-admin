@@ -34,6 +34,12 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request, params: { id: string }) {
     try {
+        const { userId } = auth();
+
+        if (!userId) {
+            return new NextResponse("Unauthorized", { status: 401 });
+        }
+
         if (!params.id) {
             const branches = await prismadb.branch.findMany();
             return NextResponse.json(branches);

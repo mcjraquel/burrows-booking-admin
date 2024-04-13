@@ -31,7 +31,7 @@ const BranchSettingsPage: React.FC<BranchSettingsPageProps> = async ({
 
     return (
         <div className="flex-col">
-            <div className="flex-1 space-y-4 p-8 pt-6">
+            <div className="flex-1 space-y-4 p-8 pt-6 mx-24 mt-4">
                 <BranchSettingsForm initialData={branch} />
             </div>
         </div>

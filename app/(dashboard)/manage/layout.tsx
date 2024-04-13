@@ -4,11 +4,10 @@ import { redirect } from "next/navigation";
 import prismadb from "@/lib/prismadb";
 
 import Navbar from "@/components/navbar";
-import { Separator } from "@/components/ui/separator";
 import { Heading } from "@/components/ui/heading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import GlobalSettingsRolesPage from "./(routes)/roles/page";
+import GlobalSettingsRolesPage from "./(routes)/components/roles-tab";
 
 export default async function GlobalSettingsLayout({
     children,
@@ -26,7 +25,6 @@ export default async function GlobalSettingsLayout({
     const branch = await prismadb.branch.findFirst({
         where: {
             id: params.branchId,
-            // createdBy: userId,
         },
     });
 
@@ -37,7 +35,7 @@ export default async function GlobalSettingsLayout({
     return (
         <div className="min-w-96">
             <Navbar />
-            <div className="mx-24">
+            <div className="mx-24 mt-4">
                 <div className="flex items-center justify-between">
                     <Heading
                         className="my-4"
@@ -46,7 +44,6 @@ export default async function GlobalSettingsLayout({
                         variant="heading"
                     />
                 </div>
-                {/* <Separator /> */}
                 <Tabs defaultValue="system" className="w-full">
                     <TabsList className="grid-cols-2 my-4">
                         <TabsTrigger className="min-w-28" value="system">
@@ -55,13 +52,17 @@ export default async function GlobalSettingsLayout({
                         <TabsTrigger className="min-w-28" value="roles">
                             Roles
                         </TabsTrigger>
+                        <TabsTrigger className="min-w-28" value="services">
+                            Services
+                        </TabsTrigger>
                     </TabsList>
                     <TabsContent value="system">System</TabsContent>
                     <TabsContent value="roles">
                         <GlobalSettingsRolesPage />
                     </TabsContent>
+                    <TabsContent value="services"></TabsContent>
                 </Tabs>
-                {/* {children} */}
+                {children}
             </div>
         </div>
     );
